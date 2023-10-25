@@ -43,14 +43,22 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'djangolive.apps.users',
+    'djangolive.apps.chat'
 ]
+
+THIRD_PARTY_APPS = [
+    'channels',
+]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -62,7 +70,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'djangolive.urls'
+ROOT_URLCONF = 'djangolive.core.urls'
 
 TEMPLATES = [
     {
@@ -80,8 +88,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'djangolive.wsgi.application'
+WSGI_APPLICATION = 'djangolive.core.wsgi.application'
 
+AUTH_USER_MODEL = 'users.User'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -132,7 +141,37 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = BASE_DIR / 'static'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'djangolive/static',
+]
+
+ASGI_APPLICATION = "djangolive.apps.chat.routing.application"
+
+# settings.py
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",  # Puedes usar otro backend en producción
+    },
+}
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
+
+# Keep this at the end of the file.
+# Use this section as the last resort. Try to fix everything 
+# with django-environ package
+try:
+    # Try import settings_server.py for local purpose.
+    from settings_server import *
+except ImportError:
+    # Doesn't matter if settings_server.py not exist.
+    pass
