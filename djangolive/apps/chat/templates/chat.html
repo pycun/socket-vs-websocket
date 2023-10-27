@@ -1,18 +1,79 @@
+{% load static %}
 <!-- chat.html -->
 <!DOCTYPE html>
 <html>
 <head>
+    <style>
+    /* Estilos para el campo de entrada de texto */
+    .input-text {
+      width: 90%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    /* Estilos para la caja de chat */
+    .chat-box {
+      width: 90%;
+      height: 400px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      overflow-y: scroll; /* Agrega una barra de desplazamiento vertical cuando el contenido excede la altura */
+      padding: 10px;
+    }
+
+    /* Estilos para los mensajes dentro de la caja de chat */
+    .chat-message {
+      background-color: #f1f1f1;
+      padding: 5px;
+      margin: 5px 0;
+      border-radius: 5px;
+    }
+
+    /* Estilos para los mensajes del usuario */
+    .user-message {
+      background-color: #4CAF50;
+      width: 100%;
+      color: white;
+    }
+
+    /* Estilos para los mensajes del sistema o de otro usuario */
+    .system-message {
+      background-color: #007BFF;
+      color: white;
+    }
+
+    /* Estilos para el botón de enviar */
+    .send-button {
+      display: block;
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    </style>
     <title>Chat</title>
 </head>
 <body>
-    <div id="chat">
-        <div id="messages"></div>
-        <input id="message-input" type="text" placeholder="Escribe un mensaje">
-        <button id="send-button">Enviar</button>
+    <!-- Campo de entrada de texto -->
+    <div>
+        <input id="message-input" type="text" class="input-text" placeholder="Escribe un mensaje">
+        <button id="send-button" class="send-button">Enviar</button>
+    </div>
+
+    <!-- Caja de chat -->
+    <div id="messages" class="chat-box">
     </div>
 
     <script>
         const roomName = "{{ room_name }}";
+        const avatarG = "{{ avatar }}";
+        const usernameG = "{{ username }}";
         const chatSocket = new WebSocket(
             "ws://" + window.location.host + `/ws/chat/${roomName}/`
         );
@@ -20,13 +81,18 @@
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             const message = data.message;
-            document.querySelector("#messages").innerHTML += "<p>" + message + "</p>";
+            const username = data.username;
+            const avatar = data.avatar;
+            document.querySelector("#messages").innerHTML += '' +
+                '<div style="display: flex;">' +
+                '<img id="avatar" src="'+ avatar +'" alt="Avatar" style="max-width: 300px; width: 5%;">' +
+                '<div class="chat-message user-message"><span>' + username + ':</span><br>' + message + '</div></div>';
         };
 
         document.querySelector("#send-button").onclick = function() {
             const messageInputDom = document.querySelector("#message-input");
             const message = messageInputDom.value;
-            chatSocket.send(JSON.stringify({ message: message }));
+            chatSocket.send(JSON.stringify({ message: message, username: usernameG, avatar: avatarG }));
             messageInputDom.value = "";
         };
     </script>

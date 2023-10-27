@@ -4,4 +4,5 @@ from djangolive.apps.chat import views
 
 urlpatterns = [
     path('chat/<str:room_name>/', views.chat, name='chat'),
+    path('login/', views.login, name='login'),
 ]
